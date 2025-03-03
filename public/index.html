@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Parking Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f9;
+            color: #333;
+            transition: background-color 0.3s ease;
+        }
+        input, button {
+            margin: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #a70c0c;
+            transition: transform 0.2s ease;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+        .fade-in {
+            animation: fadeIn 1s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <h2 class="fade-in">Smart Parking Management</h2>
+
+    <h3 class="fade-in">Register Vehicle</h3>
+    <input type="text" id="numberPlate" placeholder="Number Plate" required>
+    <input type="text" id="ownerName" placeholder="Owner Name" required>
+    <input type="text" id="vehicleType" placeholder="Vehicle Type" required>
+    <input type="text" id="parkingSlot" placeholder="Parking Slot" required>
+    <button onclick="registerVehicle()">Register</button>
+    <button onclick="clearForm()">Clear</button>
+
+    <h3 class="fade-in">Search Vehicle</h3>
+    <input type="text" id="searchPlate" placeholder="Enter Number Plate">
+    <button onclick="searchVehicle()">Search</button>
+    <button onclick="clearSearch()">Clear Search</button>
+
+    <h3>Vehicle Details</h3>
+    <p id="vehicleInfo">Enter a number plate and click search.</p>
+
+    <script>
+        let vehicles = []; // Temporary storage (lost on page refresh)
+
+ // Load vehicle data from the server
+function loadVehicles() {
+    fetch('/vehicles')  // Fetch from Express API instead of vehicles.json
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();  // Directly parse JSON
+        })
+        .then(data => {
+            vehicles = data; // Store the fetched vehicles
+        })
+        .catch(error => {
+            console.error("Error loading vehicles:", error);
+            alert("⚠️ Failed to load vehicle data from the server.");
+        });
+}
+
+// Register a new vehicle
+function registerVehicle() {
+    let numberPlate = document.getElementById("numberPlate").value.trim().toUpperCase();
+    let ownerName = document.getElementById("ownerName").value.trim();
+    let vehicleType = document.getElementById("vehicleType").value.trim();
+    let parkingSlot = document.getElementById("parkingSlot").value.trim();
+
+    if (!numberPlate || !ownerName || !vehicleType || !parkingSlot) {
+        alert("Please fill all fields");
+        return;
+    }
+
+    let newVehicle = { numberPlate, ownerName, vehicleType, parkingSlot };
+
+    // Send data to the backend for saving
+    fetch('/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newVehicle)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            alert(data.message);
+            loadVehicles(); // Reload vehicle data after registering
+            clearForm();
+        } else {
+            alert("Error: " + data.error);
+        }
+    })
+    .catch(error => {
+        console.error("Error registering vehicle:", error);
+        alert("Error registering vehicle.");
+    });
+}
+
+// Load vehicle data when page loads
+window.onload = loadVehicles;
+
+        // Search for a vehicle
+        function searchVehicle() {
+            let searchPlate = document.getElementById("searchPlate").value.trim().toUpperCase();
+            if (!searchPlate) {
+                alert("Please enter a number plate.");
+                return;
+            }
+
+            let foundVehicle = vehicles.find(vehicle => vehicle.numberPlate === searchPlate);
+            if (foundVehicle) {
+                document.getElementById("vehicleInfo").innerText = 
+                    `🚗 Vehicle Found!\n
+                    Number Plate: ${foundVehicle.numberPlate}\n
+                    Owner: ${foundVehicle.ownerName}\n
+                    Type: ${foundVehicle.vehicleType}\n
+                    Slot: ${foundVehicle.parkingSlot}`;
+            } else {
+                document.getElementById("vehicleInfo").innerText = "❌ Vehicle not found.";
+            }
+        }
+
+        function clearForm() {
+            document.getElementById("numberPlate").value = "";
+            document.getElementById("ownerName").value = "";
+            document.getElementById("vehicleType").value = "";
+            document.getElementById("parkingSlot").value = "";
+        }
+
+        function clearSearch() {
+            document.getElementById("searchPlate").value = "";
+            document.getElementById("vehicleInfo").innerText = "Enter a number plate and click search.";
+        }
+
+        // Load vehicle data when page loads
+        loadVehicles();
+    </script>
+</body>
+</html>

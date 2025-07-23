@@ -4,154 +4,954 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Parking Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #10b981;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f4f4f9;
-            color: #333;
-            transition: background-color 0.3s ease;
+            background-color: #f1f5f9;
+            color: var(--dark);
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            grid-template-rows: 60px 1fr;
+            grid-template-areas:
+                "sidebar header"
+                "sidebar main";
         }
-        input, button {
-            margin: 10px;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #a70c0c;
-            transition: transform 0.2s ease;
+
+        /* Header Styles */
+        header {
+            grid-area: header;
+            background: white;
+            padding: 0 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--card-shadow);
+            z-index: 10;
         }
-        button {
-            background-color: #4CAF50;
+
+        .header-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            grid-area: sidebar;
+            background: var(--dark);
             color: white;
-            border: none;
+            padding: 1.5rem 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            padding: 0 1.5rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1px solid #334155;
+        }
+
+        .logo-icon {
+            background: var(--primary);
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .nav-menu {
+            padding: 1.5rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .nav-item {
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.2s;
             cursor: pointer;
         }
-        button:hover {
-            background-color: #45a049;
-            transform: scale(1.05);
+
+        .nav-item:hover, .nav-item.active {
+            background: #334155;
         }
-        .fade-in {
-            animation: fadeIn 1s ease-in;
+
+        .nav-item i {
+            width: 24px;
+            text-align: center;
         }
+
+        /* Main Content */
+        main {
+            grid-area: main;
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* Parking Lot Visualization */
+        .parking-lot {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-top: 1rem;
+        }
+
+        .parking-slot {
+            background: #e2e8f0;
+            border-radius: 8px;
+            height: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .parking-slot::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--success);
+        }
+
+        .parking-slot.occupied::before {
+            background: var(--danger);
+        }
+
+        .parking-slot.selected {
+            background: #dbeafe;
+            border: 2px solid var(--primary);
+        }
+
+        .parking-slot:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .slot-id {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .slot-status {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            background: var(--success);
+            color: white;
+        }
+
+        .occupied .slot-status {
+            background: var(--danger);
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--gray);
+            border: 1px solid #cbd5e1;
+        }
+
+        .btn-secondary:hover {
+            background: #f1f5f9;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        /* Vehicle Info */
+        .vehicle-info {
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .vehicle-info-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .vehicle-icon {
+            width: 48px;
+            height: 48px;
+            background: #dbeafe;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .vehicle-plate {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .vehicle-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .detail-item {
+            background: white;
+            padding: 0.75rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .detail-label {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* Stats */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .stat-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 12px;
+            background: white;
+            box-shadow: var(--card-shadow);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+
+        /* Layout Grid */
+        .col-span-8 {
+            grid-column: span 8;
+        }
+
+        .col-span-4 {
+            grid-column: span 4;
+        }
+
+        .col-span-12 {
+            grid-column: span 12;
+        }
+
+        /* Animations */
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            body {
+                grid-template-columns: 1fr;
+                grid-template-areas:
+                    "header"
+                    "main";
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            main {
+                grid-template-columns: repeat(1, 1fr);
+            }
+            
+            .col-span-8, .col-span-4 {
+                grid-column: span 12;
+            }
         }
     </style>
 </head>
 <body>
-    <h2 class="fade-in">Smart Parking Management</h2>
-
-    <h3 class="fade-in">Register Vehicle</h3>
-    <input type="text" id="numberPlate" placeholder="Number Plate" required>
-    <input type="text" id="ownerName" placeholder="Owner Name" required>
-    <input type="text" id="vehicleType" placeholder="Vehicle Type" required>
-    <input type="text" id="parkingSlot" placeholder="Parking Slot" required>
-    <button onclick="registerVehicle()">Register</button>
-    <button onclick="clearForm()">Clear</button>
-
-    <h3 class="fade-in">Search Vehicle</h3>
-    <input type="text" id="searchPlate" placeholder="Enter Number Plate">
-    <button onclick="searchVehicle()">Search</button>
-    <button onclick="clearSearch()">Clear Search</button>
-
-    <h3>Vehicle Details</h3>
-    <p id="vehicleInfo">Enter a number plate and click search.</p>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-parking"></i>
+            </div>
+            <div class="logo-text">ParkSmart</div>
+        </div>
+        
+        <nav class="nav-menu">
+            <div class="nav-item active">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-car"></i>
+                <span>Vehicles</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>Parking Map</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-chart-bar"></i>
+                <span>Analytics</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </div>
+        </nav>
+    </aside>
+    
+    <!-- Header -->
+    <header>
+        <div class="header-title">Smart Parking Management</div>
+        <div class="header-actions">
+            <button class="btn btn-secondary">
+                <i class="fas fa-bell"></i>
+            </button>
+            <button class="btn btn-secondary">
+                <i class="fas fa-user"></i> Admin
+            </button>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main>
+        <!-- Stats Section -->
+        <div class="card col-span-12">
+            <div class="stats-container">
+                <div class="stat-card fade-in">
+                    <div class="stat-icon" style="background: #dbeafe; color: var(--primary);">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <div class="stat-value">142</div>
+                    <div class="stat-label">Total Parked</div>
+                </div>
+                <div class="stat-card fade-in">
+                    <div class="stat-icon" style="background: #dcfce7; color: var(--success);">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-value">78%</div>
+                    <div class="stat-label">Utilization Rate</div>
+                </div>
+                <div class="stat-card fade-in">
+                    <div class="stat-icon" style="background: #ffedd5; color: var(--warning);">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">Available Slots</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Registration Form -->
+        <div class="card col-span-8 fade-in">
+            <div class="card-header">
+                <h2 class="card-title">Register Vehicle</h2>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Number Plate</label>
+                <input type="text" id="numberPlate" class="form-input" placeholder="Enter license plate number" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Owner Name</label>
+                <input type="text" id="ownerName" class="form-input" placeholder="Enter owner's full name" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Vehicle Type</label>
+                <select id="vehicleType" class="form-input" required>
+                    <option value="">Select vehicle type</option>
+                    <option value="Car">Car</option>
+                    <option value="Motorcycle">Motorcycle</option>
+                    <option value="Truck">Truck</option>
+                    <option value="SUV">SUV</option>
+                    <option value="Van">Van</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Select Parking Slot</label>
+                <div class="parking-lot">
+                    <div class="parking-slot" onclick="selectSlot('A1')">
+                        <div class="slot-id">A1</div>
+                        <div class="slot-status">Available</div>
+                    </div>
+                    <div class="parking-slot occupied" onclick="selectSlot('A2')">
+                        <div class="slot-id">A2</div>
+                        <div class="slot-status">Occupied</div>
+                    </div>
+                    <div class="parking-slot" onclick="selectSlot('B1')">
+                        <div class="slot-id">B1</div>
+                        <div class="slot-status">Available</div>
+                    </div>
+                    <div class="parking-slot" onclick="selectSlot('B2')">
+                        <div class="slot-id">B2</div>
+                        <div class="slot-status">Available</div>
+                    </div>
+                    <div class="parking-slot occupied" onclick="selectSlot('C1')">
+                        <div class="slot-id">C1</div>
+                        <div class="slot-status">Occupied</div>
+                    </div>
+                    <div class="parking-slot" onclick="selectSlot('C2')">
+                        <div class="slot-id">C2</div>
+                        <div class="slot-status">Available</div>
+                    </div>
+                    <div class="parking-slot" onclick="selectSlot('D1')">
+                        <div class="slot-id">D1</div>
+                        <div class="slot-status">Available</div>
+                    </div>
+                    <div class="parking-slot occupied" onclick="selectSlot('D2')">
+                        <div class="slot-id">D2</div>
+                        <div class="slot-status">Occupied</div>
+                    </div>
+                    <div class="parking-slot" onclick="selectSlot('E1')">
+                        <div class="slot-id">E1</div>
+                        <div class="slot-status">Available</div>
+                    </div>
+                    <div class="parking-slot" onclick="selectSlot('E2')">
+                        <div class="slot-id">E2</div>
+                        <div class="slot-status">Available</div>
+                    </div>
+                </div>
+                <input type="hidden" id="parkingSlot" />
+                <p id="slotLabel" style="margin-top: 10px; font-size: 0.875rem; color: var(--gray);">No slot selected</p>
+            </div>
+            
+            <div class="form-actions">
+                <button class="btn btn-primary" onclick="registerVehicle()">
+                    <i class="fas fa-check-circle"></i> Register Vehicle
+                </button>
+                <button class="btn btn-secondary" onclick="clearForm()">
+                    <i class="fas fa-times"></i> Clear Form
+                </button>
+            </div>
+        </div>
+        
+        <!-- Search Section -->
+        <div class="card col-span-4 fade-in">
+            <div class="card-header">
+                <h2 class="card-title">Search Vehicle</h2>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Enter Number Plate</label>
+                <input type="text" id="searchPlate" class="form-input" placeholder="Search by license plate">
+            </div>
+            
+            <div class="form-actions">
+                <button class="btn btn-success" onclick="searchVehicle()">
+                    <i class="fas fa-search"></i> Search Vehicle
+                </button>
+                <button class="btn btn-secondary" onclick="clearSearch()">
+                    <i class="fas fa-sync"></i> Clear Search
+                </button>
+            </div>
+            
+            <div class="vehicle-info" id="vehicleInfo">
+                <div class="vehicle-info-header">
+                    <div class="vehicle-icon">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <div class="vehicle-plate">Enter a plate number</div>
+                </div>
+                <p>Enter a vehicle plate number and click "Search Vehicle" to view details.</p>
+            </div>
+        </div>
+    </main>
+    <div id="loading" class="spinner hidden"></div>
 
     <script>
-        let vehicles = []; // Temporary storage (lost on page refresh)
-
- // Load vehicle data from the server
-function loadVehicles() {
-    fetch('/vehicles')  // Fetch from Express API instead of vehicles.json
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();  // Directly parse JSON
-        })
-        .then(data => {
-            vehicles = data; // Store the fetched vehicles
-        })
-        .catch(error => {
-            console.error("Error loading vehicles:", error);
-            alert("⚠️ Failed to load vehicle data from the server.");
-        });
-}
-
-// Register a new vehicle
-function registerVehicle() {
-    let numberPlate = document.getElementById("numberPlate").value.trim().toUpperCase();
-    let ownerName = document.getElementById("ownerName").value.trim();
-    let vehicleType = document.getElementById("vehicleType").value.trim();
-    let parkingSlot = document.getElementById("parkingSlot").value.trim();
-
-    if (!numberPlate || !ownerName || !vehicleType || !parkingSlot) {
-        alert("Please fill all fields");
-        return;
-    }
-
-    let newVehicle = { numberPlate, ownerName, vehicleType, parkingSlot };
-
-    // Send data to the backend for saving
-    fetch('/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newVehicle)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.message) {
-            alert(data.message);
-            loadVehicles(); // Reload vehicle data after registering
-            clearForm();
-        } else {
-            alert("Error: " + data.error);
+        // Mock data for demonstration
+        let vehicles = [
+            { numberPlate: "ABC123", ownerName: "John Doe", vehicleType: "Car", parkingSlot: "A2" },
+            { numberPlate: "XYZ789", ownerName: "Jane Smith", vehicleType: "SUV", parkingSlot: "C1" },
+            { numberPlate: "DEF456", ownerName: "Robert Johnson", vehicleType: "Truck", parkingSlot: "D2" }
+        ];
+        let parkingSlots = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'D1', 'D2', 'E1', 'E2'];
+        let refreshInterval;
+        // Load vehicle data
+            function updateParkingLotVisualization() {
+            const slotElements = document.querySelectorAll('.parking-slot');
+            
+            slotElements.forEach(slotElement => {
+                const slotId = slotElement.querySelector('.slot-id').textContent;
+                const isOccupied = vehicles.some(vehicle => vehicle.parkingSlot === slotId);
+                
+                // Reset slot state
+                slotElement.classList.remove('occupied', 'selected');
+                slotElement.querySelector('.slot-status').textContent = 'Available';
+                slotElement.querySelector('.slot-status').style.background = 'var(--success)';
+                
+                // Update if occupied
+                if (isOccupied) {
+                    slotElement.classList.add('occupied');
+                    slotElement.querySelector('.slot-status').textContent = 'Occupied';
+                    slotElement.querySelector('.slot-status').style.background = 'var(--danger)';
+                }
+            });
         }
-    })
-    .catch(error => {
-        console.error("Error registering vehicle:", error);
-        alert("Error registering vehicle.");
-    });
-}
 
-// Load vehicle data when page loads
-window.onload = loadVehicles;
+    async function loadVehicles() {
+            showLoading(true);
+            try {
+                const response = await fetch('/vehicles');
+                if (!response.ok) throw new Error('Network response was not ok');
+                
+                const data = await response.json();
+                vehicles = data;
+                
+                
+                // Update UI with new data
+                updateParkingLotVisualization();
+                updateStats();
+                showLoading(false);
+                
+                return data;
+            } catch (error) {
+                console.error("Error loading vehicles:", error);
+                showNotification(`Failed to load data: ${error.message}`, "error");
+                showLoading(false);
+                return [];
+            }
+        }
+        function updateStats() {
+            const totalSlots = parkingSlots.length;
+            const totalParked = vehicles.length;
+            const availableSlots = totalSlots - totalParked;
+            const utilization = Math.round((totalParked / totalSlots) * 100);
+            
+            // Update DOM elements
+             const statValues = document.querySelectorAll('.stat-value');
+            statValues[0].textContent = totalParked;
+            statValues[1].textContent = `${utilization}%`;
+            statValues[2].textContent = availableSlots;
+        }
+
+        // Select parking slot
+        function selectSlot(slot) {
+            const slotElement = event.target.closest('.parking-slot');
+            const allSlots = document.querySelectorAll('.parking-slot');
+            
+            // Skip if slot is occupied
+            if (slotElement.classList.contains('occupied')) {
+                alert("This parking slot is currently occupied. Please select another slot.");
+                return;
+            }
+            
+            // Update UI
+            allSlots.forEach(s => s.classList.remove('selected'));
+            slotElement.classList.add('selected');
+            
+            // Update hidden input and label
+            document.getElementById("parkingSlot").value = slot;
+            document.getElementById("slotLabel").innerHTML = `Selected Slot: <strong>${slot}</strong>`;
+        }
+
+        async function registerVehicle() {
+            const numberPlate = document.getElementById("numberPlate").value.trim().toUpperCase();
+            const ownerName = document.getElementById("ownerName").value.trim();
+            const vehicleType = document.getElementById("vehicleType").value;
+            const parkingSlot = document.getElementById("parkingSlot").value.trim();
+
+            if (!numberPlate || !ownerName || !vehicleType || !parkingSlot) {
+                showNotification("Please fill all fields", "warning");
+                return;
+            }
+
+            // Check if slot is already occupied
+            const isSlotOccupied = vehicles.some(v => v.parkingSlot === parkingSlot);
+            if (isSlotOccupied) {
+                showNotification("This parking slot is already occupied", "error");
+                return;
+            }
+
+            const newVehicle = { numberPlate, ownerName, vehicleType, parkingSlot };
+            
+            showLoading(true);
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newVehicle)
+                });
+                
+                if (!response.ok) throw new Error('Registration failed');
+                
+                const result = await response.json();
+                showNotification(result.message || "Vehicle registered successfully!", "success");
+                
+                // Refresh data after successful registration
+                await loadVehicles();
+                clearForm();
+            } catch (error) {
+                console.error("Error registering vehicle:", error);
+                showNotification(`Registration failed: ${error.message}`, "error");
+            } finally {
+                showLoading(false);
+            }
+        }
 
         // Search for a vehicle
         function searchVehicle() {
             let searchPlate = document.getElementById("searchPlate").value.trim().toUpperCase();
+            
             if (!searchPlate) {
-                alert("Please enter a number plate.");
+                showNotification("Please enter a number plate", "warning");
                 return;
             }
 
             let foundVehicle = vehicles.find(vehicle => vehicle.numberPlate === searchPlate);
+            const vehicleInfo = document.getElementById("vehicleInfo");
+            
             if (foundVehicle) {
-                document.getElementById("vehicleInfo").innerText = 
-                    `🚗 Vehicle Found!\n
-                    Number Plate: ${foundVehicle.numberPlate}\n
-                    Owner: ${foundVehicle.ownerName}\n
-                    Type: ${foundVehicle.vehicleType}\n
-                    Slot: ${foundVehicle.parkingSlot}`;
+                vehicleInfo.innerHTML = `
+                    <div class="vehicle-info-header">
+                        <div class="vehicle-icon">
+                            <i class="fas fa-car"></i>
+                        </div>
+                        <div class="vehicle-plate">${foundVehicle.numberPlate}</div>
+                    </div>
+                    <div class="vehicle-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Owner Name</div>
+                            <div class="detail-value">${foundVehicle.ownerName}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Vehicle Type</div>
+                            <div class="detail-value">${foundVehicle.vehicleType}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Parking Slot</div>
+                            <div class="detail-value">${foundVehicle.parkingSlot}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Entry Time</div>
+                            <div class="detail-value">${new Date().toLocaleTimeString()}</div>
+                        </div>
+                    </div>
+                `;
             } else {
-                document.getElementById("vehicleInfo").innerText = "❌ Vehicle not found.";
+                vehicleInfo.innerHTML = `
+                    <div style="text-align: center; padding: 2rem;">
+                        <div style="font-size: 5rem; color: var(--danger); margin-bottom: 1rem;">
+                            <i class="fas fa-car-crash"></i>
+                        </div>
+                        <h3 style="margin-bottom: 0.5rem;">Vehicle Not Found</h3>
+                        <p>No vehicle found with plate number: ${searchPlate}</p>
+                    </div>
+                `;
             }
         }
 
+        // Clear registration form
         function clearForm() {
             document.getElementById("numberPlate").value = "";
             document.getElementById("ownerName").value = "";
             document.getElementById("vehicleType").value = "";
             document.getElementById("parkingSlot").value = "";
+            document.getElementById("slotLabel").textContent = "No slot selected";
+            document.querySelectorAll('.parking-slot').forEach(s => s.classList.remove('selected'));
         }
 
+        // Clear search form
         function clearSearch() {
             document.getElementById("searchPlate").value = "";
-            document.getElementById("vehicleInfo").innerText = "Enter a number plate and click search.";
+            document.getElementById("vehicleInfo").innerHTML = `
+                <div class="vehicle-info-header">
+                    <div class="vehicle-icon">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <div class="vehicle-plate">Enter a plate number</div>
+                </div>
+                <p>Enter a vehicle plate number and click "Search Vehicle" to view details.</p>
+            `;
         }
 
-        // Load vehicle data when page loads
-        loadVehicles();
+        // Show notification
+        function showNotification(message, type) {
+            // In a real app, this would show a toast notification
+            alert(`${type.toUpperCase()}: ${message}`);
+        }
+
+
+        // Show/hide loading indicator
+        function showLoading(show) {
+            const loadingElement = document.getElementById('loading');
+            const mainContent = document.querySelector('main');
+            
+            if (show) {
+                loadingElement.classList.remove('hidden');
+                mainContent.style.opacity = '0.5';
+            } else {
+                loadingElement.classList.add('hidden');
+                mainContent.style.opacity = '1';
+            }
+        }
+
+        // Show notification
+        function showNotification(message, type) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <div class="notification-icon">
+                    <i class="fas fa-${type === 'success' ? 'check' : 'exclamation'}-circle"></i>
+                </div>
+                <div class="notification-content">${message}</div>
+            `;
+            
+            // Add to body
+            document.body.appendChild(notification);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                notification.classList.add('fade-out');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Initialize the application
+        async function initApp() {
+            // Initial data load
+            await loadVehicles();
+            
+            // Set up periodic refresh (every 30 seconds)
+            refreshInterval = setInterval(loadVehicles, 30000);
+            
+            // Add notification styles
+            const style = document.createElement('style');
+            style.textContent = `
+                .notification {
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 15px 20px;
+                    border-radius: 8px;
+                    color: white;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    z-index: 1000;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                    transform: translateX(110%);
+                    animation: slideIn 0.3s forwards;
+                }
+                
+                .success { background: var(--success); }
+                .error { background: var(--danger); }
+                .warning { background: var(--warning); }
+                
+                .notification-icon { font-size: 1.5rem; }
+                
+                .fade-out {
+                    animation: fadeOut 0.3s forwards;
+                }
+                
+                @keyframes slideIn {
+                    to { transform: translateX(0); }
+                }
+                
+                @keyframes fadeOut {
+                    to { opacity: 0; transform: translateY(-20px); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Start the application when page loads
+        window.onload = initApp;
+        
+        // Clean up when page unloads
+        window.onbeforeunload = () => {
+            clearInterval(refreshInterval);
+        };
     </script>
 </body>
 </html>

@@ -1,1 +1,8 @@
- 
+[
+  {
+    "numberPlate": "1234",
+    "ownerName": "sds",
+    "vehicleType": "Car",
+    "parkingSlot": "A2"
+  }
+]

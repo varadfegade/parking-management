@@ -1,0 +1,225 @@
+.retrieval-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.retrieval-header h1 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    text-align: center;
+}
+
+.retrieval-header p {
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.search-section {
+    padding: 2rem;
+}
+
+.search-input-wrapper {
+    position: relative;
+    display: flex;
+    gap: 1rem;
+}
+
+.search-icon-large {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+}
+
+.search-input-large {
+    flex: 1;
+    padding: 1rem 1rem 1rem 3.5rem;
+    border-radius: 0.75rem;
+    border: 2px solid var(--border-color);
+    background-color: var(--surface-hover);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 1.125rem;
+    transition: all 0.2s ease;
+}
+
+.search-input-large:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background-color: var(--surface-color);
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1);
+}
+
+.search-btn {
+    padding: 0 2rem;
+    font-size: 1rem;
+}
+
+@media (max-width: 600px) {
+    .search-input-wrapper {
+        flex-direction: column;
+    }
+
+    .search-btn {
+        padding: 1rem;
+    }
+}
+
+/* Empty State */
+.search-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+    background-color: var(--surface-color);
+    border-radius: 1rem;
+    border: 1px dashed var(--border-color);
+    color: var(--text-secondary);
+}
+
+.empty-icon {
+    color: var(--border-color);
+    margin-bottom: 1rem;
+}
+
+.search-empty h3 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    font-size: 1.25rem;
+}
+
+/* Result Card */
+.result-card {
+    padding: 2rem;
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.plate-badge {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    background-color: var(--surface-hover);
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    border: 2px solid var(--border-color);
+}
+
+.type-badge {
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.type-badge.standard {
+    background-color: rgba(100, 116, 139, 0.1);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.type-badge.vip {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+}
+
+.type-badge.disabled {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: var(--accent-color);
+    border: 1px solid var(--accent-color);
+}
+
+.result-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.125rem;
+}
+
+.detail-label {
+    color: var(--text-secondary);
+}
+
+.detail-value {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.highlight-row {
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--border-color);
+}
+
+.amount {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+}
+
+.location-box {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background-color: rgba(245, 158, 11, 0.05);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    padding: 2rem;
+    border-radius: 1rem;
+    margin-bottom: 2rem;
+}
+
+.location-icon {
+    color: var(--primary-color);
+    animation: bounce 2s infinite;
+}
+
+.location-box h4 {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+}
+
+.slot-highlight {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    line-height: 1;
+}
+
+.result-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.unpark-btn {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.125rem;
+    color: var(--error-color);
+    border-color: var(--error-color);
+}
+
+.unpark-btn:hover {
+    background-color: var(--error-color);
+    color: white;
+}

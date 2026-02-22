@@ -1,0 +1,112 @@
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-color);
+    padding: 2rem;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 450px;
+    padding: 3rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.login-header {
+    text-align: center;
+}
+
+.login-logo {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+.login-header h2 {
+    font-size: 1.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.login-header p {
+    color: var(--text-secondary);
+}
+
+.role-selection {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.role-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.5rem 1rem;
+    border-radius: 1rem;
+    border: 2px solid var(--border-color);
+    background: transparent;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    font-weight: 500;
+}
+
+.role-btn:hover {
+    background-color: var(--surface-hover);
+}
+
+.role-btn.active {
+    border-color: var(--primary-color);
+    background-color: rgba(245, 158, 11, 0.05);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.1);
+}
+
+.role-btn.admin.active {
+    border-color: var(--error-color);
+    background-color: rgba(239, 68, 68, 0.05);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
+}
+
+.role-btn.admin.active .role-icon {
+    color: var(--error-color);
+}
+
+.role-icon {
+    color: var(--text-secondary);
+}
+
+.role-btn.active .role-icon {
+    color: var(--primary-color);
+}
+
+.login-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.login-inputs .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.login-inputs label {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.login-submit-btn {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.125rem;
+}

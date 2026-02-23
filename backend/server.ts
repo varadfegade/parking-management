@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import connectDB from './config/db';
@@ -21,7 +21,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/parking', parkingRoutes);
 app.use('/api/facility', facilityRoutes);
 
-app.get('/', (req, res) => {
+app.get('/', (req: Request, res: Response) => {
     res.send('Smart Parking API is running... Modular Root Structure');
 });
 

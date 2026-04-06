@@ -11,6 +11,7 @@ const Login = () => {
     const [isLogin, setIsLogin] = useState(true);
     const [email, setEmail] = useState('');
     const [name, setName] = useState('');
+    const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -18,9 +19,9 @@ const Login = () => {
         setError('');
         try {
             if (isLogin) {
-                await login(selectedRole, email);
+                await login(selectedRole, email, password);
             } else {
-                await register(selectedRole, email, name);
+                await register(selectedRole, email, name, password);
             }
             navigate('/');
         } catch (err: any) {
@@ -86,7 +87,14 @@ const Login = () => {
                         </div>
                         <div className="form-group">
                             <label>Password</label>
-                            <input type="password" className="input" placeholder="••••••••" required />
+                            <input 
+                                type="password" 
+                                className="input" 
+                                placeholder="••••••••" 
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required 
+                            />
                         </div>
                     </div>
 

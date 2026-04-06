@@ -10,8 +10,8 @@ interface AuthContextType {
     userName: string | null;
     facilityId: string | null;
     facilityName: string | null;
-    login: (role: UserRole, email: string) => Promise<void>;
-    register: (role: UserRole, email: string, name: string) => Promise<void>;
+    login: (role: UserRole, email: string, password?: string) => Promise<void>;
+    register: (role: UserRole, email: string, name: string, password?: string) => Promise<void>;
     joinFacility: (adminName: string) => Promise<void>;
     setupFacility: (name: string, rows: number, cols: number, customSlots?: any[]) => Promise<void>;
     logout: () => void;
@@ -59,9 +59,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setIsLoading(false);
     }, [navigate]);
 
-    const login = async (_selectedRole: UserRole, email: string) => {
-        // Assume default password 'password123' for demonstration
-        const response = await api.post('/auth/login', { email, password: 'password123' });
+    const login = async (_selectedRole: UserRole, email: string, password?: string) => {
+        const response = await api.post('/auth/login', { email, password: password || 'password123' });
         const { token, user } = response.data;
 
         setRole(user.role);
@@ -76,8 +75,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         else navigate('/facility/join');
     };
 
-    const register = async (selectedRole: UserRole, email: string, name: string) => {
-        const response = await api.post('/auth/register', { email, name, password: 'password123', role: selectedRole });
+    const register = async (selectedRole: UserRole, email: string, name: string, password?: string) => {
+        const response = await api.post('/auth/register', { email, name, password: password || 'password123', role: selectedRole });
         const { token, user } = response.data;
 
         setRole(user.role);
